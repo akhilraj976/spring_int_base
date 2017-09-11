@@ -15,7 +15,11 @@
 		http://www.springframework.org/schema/integration/spring-integration.xsd
 		http://www.springframework.org/schema/task
 		http://www.springframework.org/task/spring-task-3.0.xsd">
-
+		
+	<int:channel id="httpReplyChannel" />
+	<int:channel id="httpErrorChannel" />
+	
+	
 	<int-http:inbound-gateway 
 		request-channel="httpRequestChannel"
 	 	error-channel="httpErrorChannel"
