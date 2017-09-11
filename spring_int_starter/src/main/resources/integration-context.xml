@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xmlns:int-stream="http://www.springframework.org/schema/integration/stream"
+	xmlns:int-http="http://www.springframework.org/schema/integration/http"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="http://www.springframework.org/schema/integration/stream
+		http://www.springframework.org/schema/integration/stream/spring-integration-stream.xsd
+		http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/integration/http 
+		http://www.springframework.org/schema/integration/http/spring-integration-http-4.3.xsd
+		http://www.springframework.org/schema/integration 
+		http://www.springframework.org/schema/integration/spring-integration.xsd
+		http://www.springframework.org/schema/task
+		http://www.springframework.org/task/spring-task-3.0.xsd">
+
+	<int-http:inbound-gateway 
+		request-channel="httpRequestChannel"
+	 	error-channel="httpErrorChannel"
+	 	reply-channel=""
+	 	path="/api/tw/v1/getEmployeesDetails"
+	 	reply-timeout="0"/>
+	
+	<int:splitter method="" output-channel="empIdPublisher" ref=""/>
+	
+	<int:publish-subscribe-channel id="empIdPublisher" apply-sequence="true" task-executor="taskExecutor"/>
+		
+	<int:service-activator input-channel="empIdPublisher" output-channel="aggregatorChannel"
+         ref="beanA" method="getEmpDetails"/>
+         
+    <int:service-activator input-channel="empIdPublisher" output-channel="aggregatorChannel"
+         ref="beanB" method="getEmpMarks"/>
+         
+     <int:service-activator input-channel="empIdPublisher" output-channel="aggregatorChannel"
+         ref="beanB" method="getEmpDepartment"/>
+         
+    <int:aggregator input-channel="aggregatorChannel" />
+	
+	
+	<task:executor id="taskExecutor" pool-size="5" queue-capacity="5"/>
+	
+</beans>

@@ -1,0 +1,24 @@
+
+
+
+plugins {
+    id 'org.springframework.boot' version '1.5.2.RELEASE'
+}
+apply plugin: 'java'
+ 
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+	
+	compile group: 'org.springframework.boot', name: 'spring-boot-starter'
+	
+	compile group: 'org.springframework.boot', name: 'spring-boot-starter-integration'
+	
+	compile group: 'org.springframework.integration', name: 'spring-integration-http'
+	
+}
