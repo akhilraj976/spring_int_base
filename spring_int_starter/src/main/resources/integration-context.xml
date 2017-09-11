@@ -19,25 +19,30 @@
 	<int-http:inbound-gateway 
 		request-channel="httpRequestChannel"
 	 	error-channel="httpErrorChannel"
-	 	reply-channel=""
+	 	reply-channel="httpReplyChannel"
 	 	path="/api/tw/v1/getEmployeesDetails"
 	 	reply-timeout="0"/>
+	 	
+	<bean id="empIdSplitter" class="com.si.starter.splitter" />
 	
-	<int:splitter method="" output-channel="empIdPublisher" ref=""/>
+	<int:splitter method="splitEmpId" output-channel="empIdPublisher" ref="empIdSplitter"/>
 	
 	<int:publish-subscribe-channel id="empIdPublisher" apply-sequence="true" task-executor="taskExecutor"/>
 		
+	<bean id="empDetailsService" class="com.si.starter.service.activator.EmpDetailsService" />
+    <bean id="empMarksService" class="com.si.starter.service.activator.EmpMarksService" />
+    <bean id="empDeptService" class="com.si.starter.service.activator.EmpDeptService" />
+    
 	<int:service-activator input-channel="empIdPublisher" output-channel="aggregatorChannel"
-         ref="beanA" method="getEmpDetails"/>
+         ref="empDetailsService" method="getEmpDetails"/>
+       
+    <int:service-activator input-channel="empIdPublisher" output-channel="aggregatorChannel"
+         ref="empMarksService" method="getEmpMarks"/>
          
     <int:service-activator input-channel="empIdPublisher" output-channel="aggregatorChannel"
-         ref="beanB" method="getEmpMarks"/>
+         ref="empDeptService" method="getEmpDepartment"/>
          
-     <int:service-activator input-channel="empIdPublisher" output-channel="aggregatorChannel"
-         ref="beanB" method="getEmpDepartment"/>
-         
-    <int:aggregator input-channel="aggregatorChannel" />
-	
+    <int:aggregator input-channel="aggregatorChannel" output-channel="httpReplyChannel"/>
 	
 	<task:executor id="taskExecutor" pool-size="5" queue-capacity="5"/>
 	
